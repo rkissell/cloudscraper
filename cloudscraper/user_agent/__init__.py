@@ -36,6 +36,21 @@ class User_Agent():
 
     # ------------------------------------------------------------------------------- #
 
+    def filterPlatforms(self, user_agents):
+        filtered = set()
+
+        if self.mobile:
+            for platform in user_agents['mobile']:
+                filtered.add(platform)
+
+        if self.desktop:
+            for platform in user_agents['desktop']:
+                filtered.add(platform)
+
+        return list(filtered)
+
+    # ------------------------------------------------------------------------------- #
+
     def tryMatchCustom(self, user_agents):
         for device_type in user_agents['user_agents']:
             for platform in user_agents['user_agents'][device_type]:
@@ -95,12 +110,14 @@ class User_Agent():
                 sys.tracebacklimit = 0
                 raise RuntimeError(f'Sorry "{self.browser}" browser is not valid, valid browsers are [{", ".join(self.browsers)}].')
 
-            if not self.platform:
-                self.platform = random.SystemRandom().choice(self.platforms)
+            filteredPlatforms = self.filterPlatforms(user_agents['user_agents'])
 
-            if self.platform not in self.platforms:
+            if not self.platform:
+                self.platform = random.SystemRandom().choice(filteredPlatforms)
+
+            if self.platform not in filteredPlatforms:
                 sys.tracebacklimit = 0
-                raise RuntimeError(f'Sorry the platform "{self.platform}" is not valid, valid platforms are [{", ".join(self.platforms)}]')
+                raise RuntimeError(f'Sorry the platform "{self.platform}" is not valid, valid platforms are [{", ".join(filteredPlatforms)}]')
 
             filteredAgents = self.filterAgents(user_agents['user_agents'])
 
